@@ -35,6 +35,26 @@ function addItem(text) {
     document.querySelector("#item-input").value = "";
 }
 
+// function to add item to local storage of browser
+function addToStorage(item) {
+    let itemsStored;
+    
+    // check if local storage has been used
+    if (localStorage.getItem('items') === null) {
+        itemsStored = []
+    }
+    else {
+        itemsStored = JSON.parse(localStorage.getItem("items"));
+    }
+
+    // add new item to array
+    itemsStored.push(item);
+
+    // store to local storage
+    localStorage.setItem('items', JSON.stringify(item))
+
+}
+
 function createButton(classes) {
     const btn = document.createElement("button");
     btn.className = classes;
@@ -132,12 +152,9 @@ function onSubmit(e) {
         alert("Please fill form");
         return;
     }
-    else {
-        addItem(inputTxt);
-        return;
-    }
-
+    addItem(inputTxt);
 }
+
 // form selected
 const formItem = document.querySelector("#item-form");
 formItem.addEventListener("submit", onSubmit);
@@ -183,3 +200,6 @@ filter.addEventListener("input", filterText);
 
 // upon loading the page we first check the UI
 checkUI();
+
+// using LocalStorage
+localStorage.setItem('Joshua', "Lisa");
