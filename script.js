@@ -161,5 +161,25 @@ function checkUI() {
     }
 }
 
+// function to filter items on page
+function filterText(e) {
+    // prepare varaibels to filter
+    const items = document.querySelectorAll("li");
+    let text = e.target.value.toLowerCase();
+
+    items.forEach(item => {
+        const itemText = item.firstChild.textContent.toLowerCase();// get text of item
+        // display items who have similar substrings
+        if (itemText.indexOf(text) != -1) {
+            item.style.display = 'flex';
+        }
+        else {
+            item.style.display = 'none';
+        }
+    })
+}
+const filter = document.querySelector("#filter");
+filter.addEventListener("input", filterText);
+
 // upon loading the page we first check the UI
 checkUI();
