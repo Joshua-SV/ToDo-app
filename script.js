@@ -4,10 +4,6 @@ output = document.getElementById("title");
 output.innerHTML = "<strong>Shopping List</strong>";//changed title look
 
 output = document.querySelector(".btn");
- 
-// --- change color of text ---
-const listItems = document.querySelectorAll(".items");//get all elements tags with class name 'items'
-listItems[0].firstElementChild.style.color = 'orange';//change color text of the first child tag
 
 // ------ sub Title ---------
 const div = document.createElement('div');//creates a div html tag
@@ -20,9 +16,8 @@ document.querySelector('.title-container').appendChild(div);//add the div to the
 //declaring function to create a to-do item and add it at the end of the list
 function addItem(text) {
     const li = document.createElement("li");
-    const cl = document.querySelector("li");
 
-    li.className = cl.className;
+    li.className = document.body.classList.contains("body-dark") ? "lst-item item-dark" : "lst-item";
 
     const txt = document.createTextNode(text);
     const btn = createButton("remove-item btn-link text-red");
@@ -33,6 +28,11 @@ function addItem(text) {
 
     //place the item the page
     document.querySelector('ul').appendChild(li);
+
+    checkUI();
+
+    //reset the text input to empty string
+    document.querySelector("#item-input").value = "";
 }
 
 function createButton(classes) {
@@ -48,8 +48,6 @@ function createIcon(classes) {
     icon.className = classes;
     return icon;
 }
-
-addItem("Wife");
 
 // replace an existing item
 function replaceItem(num, txt) {
@@ -67,18 +65,27 @@ function replaceItem(num, txt) {
     item.replaceWith(li);
 }
 
-replaceItem(2, "Chocolate");
-
 //deletes an item from the list
-function removeItem(num) {
-    document.querySelector(`li:nth-child(${num})`).remove()
+function removeItem(e) {
+    // make sure the user clicks the x symbol button to delete item
+    if (e.target.parentElement.classList.contains("remove-item"))
+    {
+        if (confirm("Are you sure?")) {
+            // removes list item 
+            e.target.parentElement.parentElement.remove();
+            checkUI();
+        }
+    }
 }
 
 //handle event for clear button
 function onClear() {
-   const items = document.querySelectorAll(".lst-item");
-   console.log(items);
-   items.forEach(element => element.remove());
+    if (confirm("Are you sure?")) {
+        const items = document.querySelectorAll(".lst-item");
+        console.log(items);
+        items.forEach(element => element.remove());
+        checkUI();
+    }
 }
 
 const clearBtn = document.querySelector("#clear");
@@ -88,7 +95,7 @@ const clearBtn = document.querySelector("#clear");
 
 // modern event listening
 // make clear button useful
-clearBtn.addEventListener("click", () => onClear());
+clearBtn.addEventListener("click", onClear);
 
 
 // make an event listener for the image logo which toggles dark mode
@@ -136,7 +143,23 @@ const formItem = document.querySelector("#item-form");
 formItem.addEventListener("submit", onSubmit);
 
 //delete specific item
-const ULlist = document.querySelector("ul");
+const ulList = document.querySelector("#item-list");
+ulList.addEventListener("click", removeItem);
 
-ULlist.addEventListener("click", (e) => { e.target.remove() });
 
+// function to check UI to update page
+function checkUI() {
+    const items = document.querySelectorAll("li");
+    const itemFilter = document.querySelector("#filter");
+    if (items.length === 0) {
+        clearBtn.style.display = 'none';
+        itemFilter.style.display = "none";
+    }
+    else{
+        clearBtn.style.display = 'block';
+        itemFilter.style.display = "block";
+    }
+}
+
+// upon loading the page we first check the UI
+checkUI();
