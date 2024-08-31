@@ -37,6 +37,17 @@ function addItem(text) {
 
 // function to add item to local storage of browser
 function addToStorage(item) {
+    const itemsStored = getStorageItems();
+
+    // add new item to array
+    itemsStored.push(item);
+
+    // store to local storage
+    localStorage.setItem('items', JSON.stringify(itemsStored));
+}
+
+// retrieve items from local storage
+function getStorageItems() {
     let itemsStored;
     
     // check if local storage has been used
@@ -47,12 +58,17 @@ function addToStorage(item) {
         itemsStored = JSON.parse(localStorage.getItem("items"));
     }
 
-    // add new item to array
-    itemsStored.push(item);
+    return itemsStored;
+}
 
-    // store to local storage
-    localStorage.setItem('items', JSON.stringify(item))
+// function for displaying stored items
+function displayStoredItems() {
+    const itemsStored = getStorageItems();
 
+    itemsStored.forEach((item) => {
+        addItem(item);
+    })
+    checkUI();
 }
 
 function createButton(classes) {
@@ -85,16 +101,34 @@ function replaceItem(num, txt) {
     item.replaceWith(li);
 }
 
+function removeItemStorage(txt) {
+    let itemsStored = getStorageItems();
+
+    // remove item from the local storage array
+    itemsStored = itemsStored.filter((item) => item != txt);
+
+    // store to local storage
+    localStorage.setItem('items', JSON.stringify(itemsStored));
+}
+
 //deletes an item from the list
-function removeItem(e) {
+function removeItem(item) {
+    if (confirm("Are you sure?")) {
+        // removes list item 
+        item.remove();
+
+        // remove from storage
+        removeItemStorage(item.textContent);
+        
+        checkUI();
+    }
+}
+
+function onClick(e) {
     // make sure the user clicks the x symbol button to delete item
     if (e.target.parentElement.classList.contains("remove-item"))
     {
-        if (confirm("Are you sure?")) {
-            // removes list item 
-            e.target.parentElement.parentElement.remove();
-            checkUI();
-        }
+        removeItem(e.target.parentElement.parentElement);
     }
 }
 
@@ -104,6 +138,10 @@ function onClear() {
         const items = document.querySelectorAll(".lst-item");
         console.log(items);
         items.forEach(element => element.remove());
+
+        // remove all items from storage
+        localStorage.removeItem('items');
+
         checkUI();
     }
 }
@@ -153,15 +191,16 @@ function onSubmit(e) {
         return;
     }
     addItem(inputTxt);
+    addToStorage(inputTxt);
 }
 
 // form selected
 const formItem = document.querySelector("#item-form");
 formItem.addEventListener("submit", onSubmit);
 
-//delete specific item
+//upon clicking a specific item we can either delete or modify
 const ulList = document.querySelector("#item-list");
-ulList.addEventListener("click", removeItem);
+ulList.addEventListener("click", onClick);
 
 
 // function to check UI to update page
@@ -198,7 +237,8 @@ function filterText(e) {
 const filter = document.querySelector("#filter");
 filter.addEventListener("input", filterText);
 
-// upon loading the page we first check the UI
+// upon loading the page we first load items saved on local storage and check the UI
+document.addEventListener("DOMContentLoaded", displayStoredItems);
 checkUI();
 
 // using LocalStorage
