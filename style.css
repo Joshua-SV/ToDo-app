@@ -22,6 +22,11 @@ body {
   background-color: #18252A;
 }
 
+.edit-mode {
+  color: #2eb1e6;
+  font-style: italic;
+}
+
 header {
   display: flex;
   justify-content: flex-start;

@@ -1,9 +1,12 @@
 let output;
+let isEditMode = false;
 
 output = document.getElementById("title");
 output.innerHTML = "<strong>Shopping List</strong>";//changed title look
 
 output = document.querySelector(".btn");
+
+const formBtn = document.querySelector(".btn");
 
 // ------ sub Title ---------
 const div = document.createElement('div');//creates a div html tag
@@ -124,12 +127,39 @@ function removeItem(item) {
     }
 }
 
+function setItemToEdit(item) {
+    isEditMode = true;
+    // remove edit mode of previous items
+    document.querySelectorAll('li').forEach((i) => {
+        i.classList.remove('edit-mode');
+    });
+
+    // change display of item and button
+    item.classList.add('edit-mode')
+    formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item!'
+
+    // set the text input to edit string
+    document.querySelector("#item-input").value = item.textContent;
+
+}
+
 function onClick(e) {
     // make sure the user clicks the x symbol button to delete item
     if (e.target.parentElement.classList.contains("remove-item"))
     {
         removeItem(e.target.parentElement.parentElement);
     }
+    else {
+        setItemToEdit(e.target);
+    }
+}
+
+function checkDuplicates(item)
+{
+    // check if item exist in storage
+    const itemsStored = getStorageItems();
+
+    return itemsStored.includes(item);
 }
 
 //handle event for clear button
@@ -190,6 +220,24 @@ function onSubmit(e) {
         alert("Please fill form");
         return;
     }
+    // check that edit mode is true
+    if (isEditMode) {
+        // select the item that is being edited
+        const item = document.querySelector('.edit-mode');
+        // remove from local storage first
+        removeItemStorage(item.textContent);
+        // then remove form every other place
+        item.classList.remove('edit-mode');
+        item.remove();
+        isEditMode = false;
+    } 
+    else {
+        if (checkDuplicates(inputTxt))
+        {
+            alert("Item already exist!");
+            return;
+        }
+    }
     addItem(inputTxt);
     addToStorage(inputTxt);
 }
@@ -215,6 +263,9 @@ function checkUI() {
         clearBtn.style.display = 'block';
         itemFilter.style.display = "block";
     }
+
+    formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
+    isEditMode = false;
 }
 
 // function to filter items on page
